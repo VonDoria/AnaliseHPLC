@@ -66,6 +66,14 @@
             flex-wrap: nowrap;
             white-space: nowrap;
         }
+        #donation-modal {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        #donation-icon:hover #donation-modal {
+            opacity: 1;
+            transform: scale(1) translateX(-10px);
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-700">
@@ -105,76 +113,84 @@
         <main>
             <!-- Aba de Tutorial -->
             <div id="tutorial-tab" class="tab-content active">
-                <div class="card space-y-6">
-                    <h2 class="section-title"><i class="ph-bold ph-rocket-launch"></i> Guia de Início Rápido</h2>
-                    <div class="prose max-w-none prose-indigo">
-                        <p>Bem-vindo à ferramenta de Análise de Dados HPLC! Siga os passos abaixo para processar e visualizar seus dados de forma eficiente.</p>
+                <div class="card space-y-8">
+                    <div>
+                        <h2 class="section-title"><i class="ph-bold ph-rocket-launch text-indigo-500"></i> Guia de Início Rápido</h2>
+                        <p class="text-slate-600 mt-2">Bem-vindo(a) à ferramenta de Análise de Dados HPLC! Este guia foi feito para te ajudar a usar todas as funcionalidades e otimizar seu tempo. Vamos começar?</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <details class="bg-slate-50 p-4 rounded-lg border">
+                            <summary class="font-semibold text-lg flex justify-between items-center cursor-pointer">
+                                <span>Passo 1: Configurar Parâmetros das Moléculas</span>
+                                <i class="ph ph-caret-right arrow text-xl"></i>
+                            </summary>
+                            <div class="pt-3 mt-3 border-t text-slate-600 space-y-2">
+                                <p>Na aba <strong>"Parâmetros"</strong>, você cadastra cada molécula de interesse que será analisada.</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li><strong>Nome da Molécula:</strong> Um identificador único (ex: Glicose, Frutose).</li>
+                                    <li><strong>Tempo de Referência (min):</strong> O tempo de retenção esperado para a molécula. A ferramenta buscará o pico mais próximo a este tempo.</li>
+                                    <li><strong>Fator de Conversão:</strong> Valor para converter a área do pico em concentração.</li>
+                                    <li><strong>Fator de Diluição:</strong> Se a sua amostra foi diluída (ex: 10 para uma diluição 1:10).</li>
+                                    <li><strong>Fator de Correção:</strong> Um valor para ajustar o cálculo final da concentração, se necessário.</li>
+                                </ul>
+                                <p class="font-medium text-indigo-600">Clique em "Adicionar Molécula" para salvar. Você pode adicionar quantas precisar.</p>
+                            </div>
+                        </details>
+
+                        <details class="bg-slate-50 p-4 rounded-lg border">
+                            <summary class="font-semibold text-lg flex justify-between items-center cursor-pointer">
+                                <span>Passo 2: Processar Amostras</span>
+                                 <i class="ph ph-caret-right arrow text-xl"></i>
+                            </summary>
+                             <div class="pt-3 mt-3 border-t text-slate-600 space-y-2">
+                                <p>A aba <strong>"Amostras"</strong> é o coração da ferramenta. O processo é simples e dinâmico:</p>
+                                <ol class="list-decimal list-inside space-y-2">
+                                    <li><strong>Cole os Dados:</strong> Cole a sua corrida de HPLC inteira na área de texto. A ferramenta irá ler e listar automaticamente todas as injeções (replicatas) encontradas.</li>
+                                    <li><strong>Defina uma Amostra:</strong> No painel ao lado, dê um nome para seu grupo de replicatas (ex: "Cultura_24h").</li>
+                                    <li><strong>Selecione as Replicatas:</strong> Na lista de injeções, marque as checkboxes que correspondem à amostra que você nomeou.</li>
+                                    <li><strong>Processe:</strong> Clique em <strong>"Processar Amostra Selecionada"</strong>. As replicatas escolhidas serão processadas, salvas e removidas da lista e da área de texto.</li>
+                                    <li><strong>Repita:</strong> Continue o processo para cada grupo de replicatas, até que a área de texto esteja vazia.</li>
+                                </ol>
+                            </div>
+                        </details>
                         
-                        <div class="space-y-4">
-                            <details class="bg-slate-50 p-3 rounded-lg border">
-                                <summary class="font-semibold flex justify-between items-center">
-                                    <span>Passo 1: Configurar Parâmetros das Moléculas</span>
-                                    <i class="ph ph-caret-right arrow"></i>
-                                </summary>
-                                <div class="pt-2 mt-2 border-t">
-                                    <p>Navegue até a aba <strong>"Parâmetros"</strong>. Aqui, você deve cadastrar cada molécula de interesse que deseja analisar em suas amostras.</p>
-                                    <ul>
-                                        <li><strong>Nome da Molécula:</strong> Um identificador único (ex: Glicose, Frutose).</li>
-                                        <li><strong>Tempo de Referência:</strong> O tempo de retenção esperado para a molécula (em minutos). A ferramenta buscará o pico mais próximo a este tempo.</li>
-                                        <li><strong>Fator de Conversão:</strong> O valor usado para converter a área do pico em concentração.</li>
-                                        <li><strong>Fator de Diluição:</strong> Se a sua amostra foi diluída, insira o fator aqui (ex: 10 para uma diluição 1:10).</li>
-                                        <li><strong>Fator de Correção:</strong> Um valor adicional para ajustar o cálculo final da concentração, se necessário.</li>
-                                    </ul>
-                                    <p>Clique em <strong>"Adicionar Molécula"</strong> para salvar. Você pode adicionar quantas moléculas precisar.</p>
-                                </div>
-                            </details>
+                         <details class="bg-slate-50 p-4 rounded-lg border">
+                            <summary class="font-semibold text-lg flex justify-between items-center cursor-pointer">
+                                <span>Passo 3: Analisar e Filtrar Resultados</span>
+                                 <i class="ph ph-caret-right arrow text-xl"></i>
+                            </summary>
+                             <div class="pt-3 mt-3 border-t text-slate-600 space-y-2">
+                                 <p>Na aba <strong>"Resultados"</strong>, você encontrará uma tabela consolidada com a média e desvio padrão. Agora com uma nova funcionalidade:</p>
+                                 <ul class="list-disc list-inside space-y-1">
+                                     <li><strong>Busca Dinâmica:</strong> Use o campo <strong>"Buscar amostra na tabela..."</strong> para filtrar instantaneamente os resultados e encontrar o que você precisa.</li>
+                                     <li><strong>Copiar para CSV:</strong> Com um clique, copie os dados da tabela (já filtrados ou não) e cole facilmente em softwares como Excel ou Google Sheets.</li>
+                                </ul>
+                            </div>
+                        </details>
 
-                            <details class="bg-slate-50 p-3 rounded-lg border" open>
-                                <summary class="font-semibold flex justify-between items-center">
-                                    <span>Passo 2: Processar Amostras</span>
-                                     <i class="ph ph-caret-right arrow"></i>
-                                </summary>
-                                <div class="pt-2 mt-2 border-t">
-                                    <p>Vá para a aba <strong>"Amostras"</strong>. O processo agora é mais dinâmico:</p>
-                                    <ol>
-                                        <li><strong>Cole os Dados:</strong> Cole todos os dados da sua corrida de HPLC na grande área de texto. A ferramenta irá identificar e listar automaticamente todas as injeções (replicatas) encontradas.</li>
-                                        <li><strong>Defina uma Amostra:</strong> No painel ao lado, dê um nome para sua primeira amostra lógica (ex: "Cultura_24h").</li>
-                                        <li><strong>Selecione as Replicatas:</strong> Na lista de injeções detectadas, marque as checkboxes que correspondem à amostra que você acabou de nomear.</li>
-                                        <li><strong>Processe:</strong> Clique em <strong>"Processar Amostra Selecionada"</strong>. As replicatas escolhidas serão processadas, salvas e removidas da área de texto e da lista de seleção.</li>
-                                        <li><strong>Repita:</strong> Continue o processo, nomeando a próxima amostra e selecionando suas respectivas replicatas, até que a área de texto esteja vazia.</li>
-                                    </ol>
-                                    <p>Este método permite que você processe uma corrida inteira de forma organizada e sequencial.</p>
-                                </div>
-                            </details>
-                            
-                             <details class="bg-slate-50 p-3 rounded-lg border">
-                                <summary class="font-semibold flex justify-between items-center">
-                                    <span>Passo 3: Analisar os Resultados</span>
-                                     <i class="ph ph-caret-right arrow"></i>
-                                </summary>
-                                <div class="pt-2 mt-2 border-t">
-                                    <p>Na aba <strong>"Resultados"</strong>, você encontrará uma tabela consolidada com a média e o desvio padrão das concentrações para cada molécula em cada conjunto de amostras.</p>
-                                     <ul>
-                                        <li><strong>Tabela de Resultados:</strong> Visualize os dados calculados de forma clara.</li>
-                                        <li><strong>Copiar para CSV:</strong> Use este botão para copiar os dados da tabela e colar facilmente em softwares como Excel ou Google Sheets.</li>
-                                        <li><strong>Excluir:</strong> Remova um conjunto de resultados e todas as suas amostras associadas.</li>
-                                    </ul>
-                                </div>
-                            </details>
+                        <details class="bg-slate-50 p-4 rounded-lg border">
+                            <summary class="font-semibold text-lg flex justify-between items-center cursor-pointer">
+                                <span>Passo 4: Criar Gráficos Avançados</span>
+                                 <i class="ph ph-caret-right arrow text-xl"></i>
+                            </summary>
+                             <div class="pt-3 mt-3 border-t text-slate-600 space-y-2">
+                                <p>A aba <strong>"Gráfico"</strong> é onde a mágica visual acontece:</p>
+                                 <ul class="list-disc list-inside space-y-1">
+                                     <li><strong>Busca Rápida:</strong> Cada card de seleção de conjunto de amostras agora tem seu próprio campo de busca para você encontrar rapidamente o que quer plotar.</li>
+                                     <li><strong>Controle Total da Ordem:</strong> O gráfico respeita a ordem em que você clica nas amostras. A primeira amostra clicada será a primeira no eixo X, a segunda será a segunda, e assim por diante. Desmarque e marque novamente para reordenar!</li>
+                                     <li><strong>Comparação Direta:</strong> Adicione múltiplos conjuntos de dados para sobrepor gráficos e comparar visualmente diferentes condições experimentais.</li>
+                                </ul>
+                            </div>
+                        </details>
+                    </div>
 
-                            <details class="bg-slate-50 p-3 rounded-lg border">
-                                <summary class="font-semibold flex justify-between items-center">
-                                    <span>Passo 4: Criar Gráficos Comparativos</span>
-                                     <i class="ph ph-caret-right arrow"></i>
-                                </summary>
-                                <div class="pt-2 mt-2 border-t">
-                                    <p>A aba <strong>"Gráfico"</strong> é onde você pode visualizar e comparar seus dados.</p>
-                                     <ul>
-                                        <li><strong>Selecione a Métrica (Eixo Y):</strong> Escolha qual dado você quer plotar (ex: Média de Glicose).</li>
-                                        <li><strong>Monte os Conjuntos:</strong> Você pode criar múltiplos "conjuntos" de dados para comparação. Selecione as amostras para o <strong>Conjunto 1</strong> e depois adicione um <strong>Conjunto 2</strong> para sobrepor os dados e comparar diretamente.</li>
-                                    </ul>
-                                </div>
-                            </details>
+                    <div class="border-t pt-6 mt-6 text-center text-slate-600">
+                        <h3 class="font-semibold text-lg text-slate-800">Uma mensagem do criador</h3>
+                        <p class="mt-2">Olá! Eu sou o Ítalo, estudante de biologia e entusiasta da ciência e da programação. Criei esta ferramenta com o objetivo de simplificar a vida de pesquisadores e estudantes, transformando uma tarefa tediosa em algo rápido e visual. Ela foi feita com muito carinho e atenção aos detalhes, pensando em como eu mesmo gostaria de analisar meus dados.</p>
+                        <p class="mt-2">Se esta ferramenta te ajudou a economizar tempo e a facilitar seu trabalho, considere apoiar o projeto. Sua contribuição me ajuda a manter a ferramenta funcionando, a desenvolver novas funcionalidades e, claro, a pagar o café que move tudo isso!</p>
+                        <div class="mt-4">
+                            <p class="font-bold text-indigo-600">Qualquer valor faz uma grande diferença. Muito obrigado!</p>
                         </div>
                     </div>
                 </div>
@@ -204,12 +220,10 @@
             <div id="samples-tab" class="tab-content hidden">
                 <div class="card">
                     <h2 class="section-title"><i class="ph-bold ph-flask"></i> Registro de Amostras</h2>
-                    
                     <div class="mb-6">
                         <label class="font-semibold mb-2 block">Passo 1: Cole todos os dados da sua corrida de HPLC abaixo.</label>
                         <textarea id="sampleData" class="data-input-area min-h-[12rem]" placeholder="Cole os dados brutos aqui..."></textarea>
                     </div>
-            
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start border-t pt-6">
                         <div class="space-y-4">
                             <h3 class="font-semibold">Passo 2: Defina uma amostra e processe.</h3>
@@ -221,7 +235,6 @@
                                 <i class="ph-bold ph-gear-six"></i> Processar Amostra Selecionada
                             </button>
                         </div>
-            
                         <div class="space-y-4">
                              <h3 class="font-semibold">Passo 3: Selecione as replicatas correspondentes.</h3>
                              <div id="hplcDataCheckboxList" class="sample-checkbox-list bg-slate-50 min-h-[10rem]">
@@ -229,14 +242,15 @@
                              </div>
                         </div>
                     </div>
-            
-                    <h3 class="text-lg font-semibold mt-8 mb-4 border-t pt-4">Amostras Já Processadas</h3>
-                    <div id="samplesList" class="mt-4 space-y-2">
-                        <!-- Amostras processadas aqui -->
+                    <div class="mt-8 pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-2">Amostras Já Processadas</h3>
+                        <input type="text" id="processedSamplesSearch" placeholder="Buscar amostras processadas..." class="mb-4 w-full md:w-1/3">
+                        <div id="samplesList" class="mt-4 space-y-2">
+                            <!-- Amostras processadas aqui -->
+                        </div>
                     </div>
                 </div>
             </div>
-
 
             <!-- Aba de Resultados -->
             <div id="results-tab" class="tab-content hidden">
@@ -247,6 +261,7 @@
                              <i class="ph-bold ph-copy"></i> Copiar para CSV
                          </button>
                     </div>
+                    <input type="text" id="resultsSearch" placeholder="Buscar amostra na tabela..." class="mb-4 w-full md:w-1/3">
                     <div id="resultsTableContainer" class="overflow-x-auto">
                         <table id="resultsTable" class="results-table w-full"></table>
                     </div>
@@ -276,7 +291,7 @@
                         </div>
                         <div class="lg:col-span-2">
                             <label class="font-semibold mb-2 block">3. Monte os conjuntos de amostras para comparação:</label>
-                            <div id="datasetSelectorsContainer" class="space-y-4 flex flex-wrap items-strech gap-2">
+                            <div id="datasetSelectorsContainer" class="space-y-4 flex gap-2 flex-wrap items-stretch justify-start">
                                 <!-- Seletores de dataset serão inseridos aqui -->
                             </div>
                             <button id="addDatasetBtn" class="btn btn-secondary mt-4 text-sm">
@@ -294,6 +309,17 @@
         <!-- Container para Alertas -->
         <div id="alertsContainer" class="fixed bottom-24 sm:bottom-5 right-5 w-full max-w-xs sm:max-w-sm space-y-3 z-50"></div>
         
+        <div id="donation-icon" class="fixed bottom-5 right-5 group">
+            <div id="donation-modal" class="absolute bottom-full right-0 mb-2 w-72 bg-white p-4 rounded-lg shadow-lg opacity-0 transform scale-95 pointer-events-none origin-bottom-right">
+                <h4 class="font-bold text-slate-800">Gostou da ferramenta?</h4>
+                <p class="text-sm text-slate-600 mt-1">Seu apoio ajuda a manter este projeto vivo e crescendo. Que tal pagar um café para o dev?</p>
+                <p class="text-center font-bold text-indigo-600 mt-2">PIX: <span class="select-all">italo.faria0@gmail.com</span></p>
+            </div>
+            <button class="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+                <i class="ph-bold ph-coffee text-2xl"></i>
+            </button>
+        </div>
+
         <!-- Barra de Armazenamento -->
         <footer class="mt-8">
             <div class="bg-white p-3 rounded-xl shadow-md border border-slate-200">
@@ -327,7 +353,12 @@
         document.querySelectorAll('.tab').forEach(el => { el.className = `tab ${el.classList.contains('active') ? 'active ' : ''}${tabStyle} ${el.classList.contains('active') ? tabActiveStyle : tabInactiveStyle}` });
         document.querySelectorAll('.chart-type-btn').forEach(el => { el.className = `${el.className.replace(/w-full text-sm.*$/, '')} w-full text-sm ${btnBase} ${el.classList.contains('active') ? 'bg-indigo-500' : 'bg-slate-300 text-slate-700 hover:bg-slate-400'}` });
 
-        const appState = { molecules: [], samples: [], results: [] };
+        const appState = { 
+            molecules: [], 
+            samples: [], 
+            results: [],
+            chartSelectedSamples: {} 
+        };
         let resultsChart = null;
         let datasetCount = 0;
 
@@ -381,10 +412,11 @@
                         appState.molecules = parsed.molecules || [];
                         appState.samples = parsed.samples || [];
                         appState.results = parsed.results || [];
+                        appState.chartSelectedSamples = parsed.chartSelectedSamples || {};
                     }
                 } catch (e) {
                     console.error("Erro ao ler dados do localStorage.", e);
-                    appState.molecules = []; appState.samples = []; appState.results = [];
+                    appState.molecules = []; appState.samples = []; appState.results = []; appState.chartSelectedSamples = {};
                 }
             }
             renderAll();
@@ -424,19 +456,25 @@
             });
         }
         
-        function renderSamplesList() {
+        function renderSamplesList(filter = '') {
              const list = document.getElementById('samplesList');
              list.innerHTML = '';
-             if (appState.samples.length === 0) {
-                 list.innerHTML = '<p class="text-slate-500 text-center py-4">Nenhuma amostra processada.</p>';
-                 return;
-             }
+             const lowerCaseFilter = filter.toLowerCase();
+
              const groups = appState.samples.reduce((acc, sample) => {
                  const baseName = sample.name.replace(/_\d+$/, '');
-                 if (!acc[baseName]) acc[baseName] = [];
-                 acc[baseName].push(sample);
+                 if (baseName.toLowerCase().includes(lowerCaseFilter)) {
+                    if (!acc[baseName]) acc[baseName] = [];
+                    acc[baseName].push(sample);
+                 }
                  return acc;
              }, {});
+
+             if (Object.keys(groups).length === 0) {
+                 list.innerHTML = `<p class="text-slate-500 text-center py-4">Nenhuma amostra encontrada${filter ? ' para "' + filter + '"' : ''}.</p>`;
+                 return;
+             }
+             
              Object.entries(groups).forEach(([baseName, group]) => {
                  const details = document.createElement('details');
                  details.className = 'bg-slate-50 border border-slate-200 rounded-lg';
@@ -452,7 +490,7 @@
                             <ul>
                             ${appState.molecules.map(mol => {
                                 const res = sample.processedData[mol.name];
-                                return res ? `<li>${mol.name}: ${res.concentration.toFixed(4)}</li>` : '';
+                                return res ? `<li>${mol.name}: ${res.concentration.toFixed(4)} [${res.time}   ${res.area}]</li>` : '';
                             }).join('')}
                             </ul>
                         </div>
@@ -462,11 +500,14 @@
              });
         }
         
-        function renderResultsTable() {
+        function renderResultsTable(filter = '') {
             const table = document.getElementById('resultsTable');
             table.innerHTML = '';
-            if (appState.results.length === 0) {
-                table.innerHTML = '<thead><tr><th class="p-3 text-slate-500">Nenhum resultado disponível.</th></tr></thead>';
+            const lowerCaseFilter = filter.toLowerCase();
+            const filteredResults = appState.results.filter(r => r.sampleName.toLowerCase().includes(lowerCaseFilter));
+
+            if (filteredResults.length === 0) {
+                table.innerHTML = `<thead><tr><th class="p-3 text-slate-500">Nenhum resultado encontrado${filter ? ' para "' + filter + '"' : ''}.</th></tr></thead>`;
                 return;
             }
             let thead = '<thead><tr class="bg-slate-100">';
@@ -477,7 +518,7 @@
             appState.molecules.forEach(() => { thead += '<th class="p-2 text-center text-xs font-medium text-slate-500">Média</th><th class="p-2 text-center text-xs font-medium text-slate-500">Desvio Padrão</th>' });
             thead += '<th></th></tr></thead>';
             let tbody = '<tbody>';
-            appState.results.forEach(res => {
+            filteredResults.forEach(res => {
                 tbody += `<tr class="border-b border-slate-200 hover:bg-slate-50"><td class="p-3 font-semibold text-slate-800">${res.sampleName}</td>`;
                 appState.molecules.forEach(m => {
                     const data = res.molecules[m.name];
@@ -616,7 +657,8 @@
                         const time = sampleData.times[closestIndex];
                         sample.processedData[mol.name] = {
                             concentration: (area * mol.conversionFactor * mol.dilutionFactor) + mol.correctionFactor,
-                            area, time
+                            area: area, 
+                            time: time
                         };
                     });
                     appState.samples.push(sample);
@@ -656,6 +698,14 @@
         
         function deleteResult(sampleName) {
             if (confirm(`Tem certeza que deseja excluir os resultados de "${sampleName}"?`)) {
+                // Remove from chart selections first
+                Object.keys(appState.chartSelectedSamples).forEach(key => {
+                    const index = appState.chartSelectedSamples[key].indexOf(sampleName);
+                    if (index > -1) {
+                        appState.chartSelectedSamples[key].splice(index, 1);
+                    }
+                });
+
                 appState.results = appState.results.filter(r => r.sampleName !== sampleName);
                 appState.samples = appState.samples.filter(s => !s.name.startsWith(`${sampleName}_`));
                 renderAll(); saveToLocalStorage();
@@ -702,6 +752,7 @@
             });
             document.getElementById('datasetSelectorsContainer').innerHTML = '';
             datasetCount = 0;
+            appState.chartSelectedSamples = {}; // Reset selections when re-initializing
             addDatasetSelector();
         }
 
@@ -710,17 +761,19 @@
             const container = document.getElementById('datasetSelectorsContainer');
             const selectorId = `dataset-selector-${datasetCount}`;
             const wrapper = document.createElement('div');
-            wrapper.className = 'border border-slate-200 p-3 rounded-lg bg-slate-50';
+            wrapper.className = 'border border-slate-200 p-3 rounded-lg bg-slate-50 flex-1 min-w-[280px]';
             let content = `
                 <div class="flex justify-between items-center mb-2">
-                    <label class="font-semibold text-slate-700">Conjunto de Amostras ${datasetCount}</label>
-                    ${datasetCount > 1 ? `<button class="text-red-500 hover:text-red-700 text-xs" onclick="removeDatasetSelector('${selectorId}', event)"><i class="ph-bold ph-trash"></i> Remover</button>` : ''}
+                    <label class="font-semibold text-slate-700">Conjunto ${datasetCount}</label>
+                    ${datasetCount > 1 ? `<button class="text-red-500 hover:text-red-700 text-xs" onclick="removeDatasetSelector('${selectorId}', event)"><i class="ph-bold ph-trash"></i></button>` : ''}
                 </div>
+                <input type="text" placeholder="Buscar amostra..." class="dataset-search-input w-full p-2 border border-slate-200 rounded-md mb-2 text-sm" data-target="${selectorId}">
                 <div id="${selectorId}" class="sample-checkbox-list bg-white">`;
+
             appState.results.forEach(r => {
                 content += `
                     <label class="flex items-center space-x-2 p-1 hover:bg-slate-100 rounded cursor-pointer">
-                        <input type="checkbox" value="${r.sampleName}" class="chart-sample-checkbox rounded">
+                        <input type="checkbox" value="${r.sampleName}" class="chart-sample-checkbox rounded" data-parent-id="${selectorId}">
                         <span>${r.sampleName}</span>
                     </label>`;
             });
@@ -728,12 +781,51 @@
             wrapper.innerHTML = content;
             wrapper.id = `${selectorId}-wrapper`;
             container.appendChild(wrapper);
-            wrapper.querySelectorAll('.chart-sample-checkbox').forEach(el => el.addEventListener('change', renderChart));
+
+            appState.chartSelectedSamples[selectorId] = [];
+
+            wrapper.querySelectorAll('.chart-sample-checkbox').forEach(el => el.addEventListener('change', handleChartSelectionChange));
+            wrapper.querySelector('.dataset-search-input').addEventListener('input', handleDatasetSearch);
+        }
+
+        function handleDatasetSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const targetListId = event.target.dataset.target;
+            const listContainer = document.getElementById(targetListId);
+            const labels = listContainer.querySelectorAll('label');
+            labels.forEach(label => {
+                const sampleName = label.querySelector('span').textContent.toLowerCase();
+                if (sampleName.includes(searchTerm)) {
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                }
+            });
+        }
+
+        function handleChartSelectionChange(event) {
+            const checkbox = event.target;
+            const sampleName = checkbox.value;
+            const parentId = checkbox.dataset.parentId;
+            const selectedSamples = appState.chartSelectedSamples[parentId];
+
+            if (checkbox.checked) {
+                if (!selectedSamples.includes(sampleName)) {
+                    selectedSamples.push(sampleName);
+                }
+            } else {
+                const index = selectedSamples.indexOf(sampleName);
+                if (index > -1) {
+                    selectedSamples.splice(index, 1);
+                }
+            }
+            renderChart();
         }
         
-        function removeDatasetSelector(wrapperId, event) {
+        function removeDatasetSelector(selectorId, event) {
             event.stopPropagation();
-            document.getElementById(`${wrapperId}-wrapper`).remove();
+            delete appState.chartSelectedSamples[selectorId];
+            document.getElementById(`${selectorId}-wrapper`).remove();
             renderChart();
         }
 
@@ -742,14 +834,16 @@
             const selectedMetric = yAxisSelect.value;
             const chartType = document.querySelector('.chart-type-btn.active')?.dataset.type || 'bar';
             if (resultsChart) { resultsChart.destroy(); }
-            const datasetSelectors = document.querySelectorAll('#datasetSelectorsContainer .sample-checkbox-list');
-            const selectedSamplesByDataset = Array.from(datasetSelectors).map(container => Array.from(container.querySelectorAll(':checked')).map(el => el.value));
+            
+            const selectorIds = Object.keys(appState.chartSelectedSamples);
+            const selectedSamplesByDataset = selectorIds.map(id => appState.chartSelectedSamples[id] || []);
+
             const hasActiveSelections = selectedSamplesByDataset.some(ds => ds.length > 0);
             if (!selectedMetric || !hasActiveSelections) {
                  const ctx = document.getElementById('resultsChart').getContext('2d');
                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                  ctx.font = "16px Inter, sans-serif"; ctx.fillStyle = "#64748b"; ctx.textAlign = "center";
-                 ctx.fillText("Selecione uma métrica e ao menos uma amostra para gerar o gráfico.", ctx.canvas.width / 2, 50);
+                 //ctx.fillText("Selecione uma métrica e ao menos uma amostra para gerar o gráfico.", ctx.canvas.width / 2, 50);
                 return;
             }
             const [moleculeName, metricType] = selectedMetric.split('-');
@@ -777,6 +871,8 @@
                     if (sampleName) {
                         const result = appState.results.find(r => r.sampleName === sampleName);
                         data.push(result ? result.molecules[moleculeName][metricType] : null);
+                    } else {
+                        data.push(null);
                     }
                 }
                 const color = colors[index % colors.length];
@@ -798,8 +894,8 @@
                         x: {
                             grid: { display: false },
                             ticks: {
-                                callback: function(value, index, ticks) { return this.getLabelForValue(value); },
-                                color: '#64748b' 
+                                callback: function(value) { return this.getLabelForValue(value); },
+                                color: '#64748b'
                                 // (context) => {
                                 //     const labels = context.chart.data.labels[context.tick.value];
                                 //     if(!Array.isArray(labels)) return '#64748b';
@@ -838,6 +934,8 @@
             document.getElementById('copyCsvButton').addEventListener('click', copyResultsAsCsv);
             document.getElementById('addDatasetBtn').addEventListener('click', addDatasetSelector);
             document.getElementById('sampleData').addEventListener('input', parseRawDataAndUpdateCheckboxes);
+            document.getElementById('processedSamplesSearch').addEventListener('input', (e) => renderSamplesList(e.target.value));
+            document.getElementById('resultsSearch').addEventListener('input', (e) => renderResultsTable(e.target.value));
 
             document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
             document.getElementById('yAxisSelect').addEventListener('change', renderChart);
