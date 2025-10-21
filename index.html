@@ -177,6 +177,7 @@
                              <div class="pt-3 mt-3 border-t text-slate-600 space-y-2">
                                 <p>A aba <strong>"Gráfico"</strong> é onde a mágica visual acontece:</p>
                                  <ul class="list-disc list-inside space-y-1">
+                                     <li><strong>Múltiplas Métricas:</strong> Você pode selecionar uma métrica diferente (ex: Glicose Média vs. Frutose Média) para cada conjunto de dados, permitindo comparações complexas no mesmo gráfico.</li>
                                      <li><strong>Busca Rápida:</strong> Cada card de seleção de conjunto de amostras agora tem seu próprio campo de busca para você encontrar rapidamente o que quer plotar.</li>
                                      <li><strong>Controle Total da Ordem:</strong> O gráfico respeita a ordem em que você clica nas amostras. A primeira amostra clicada será a primeira no eixo X, a segunda será a segunda, e assim por diante. Desmarque e marque novamente para reordenar!</li>
                                      <li><strong>Comparação Direta:</strong> Adicione múltiplos conjuntos de dados para sobrepor gráficos e comparar visualmente diferentes condições experimentais.</li>
@@ -243,7 +244,13 @@
                         </div>
                     </div>
                     <div class="mt-8 pt-4 border-t">
-                        <h3 class="text-lg font-semibold mb-2">Amostras Já Processadas</h3>
+                        <div class="flex flex-wrap justify-between items-center gap-4 mb-2">
+                             <h3 class="text-lg font-semibold">Amostras Já Processadas</h3>
+                             <button id="copyProcessedSamplesButton" class="btn btn-secondary text-sm">
+                                 <i class="ph-bold ph-copy"></i> Copiar Dados da Tabela
+                             </button>
+                        </div>
+                        <!-- FIM DAS ALTERAÇÕES -->
                         <input type="text" id="processedSamplesSearch" placeholder="Buscar amostras processadas..." class="mb-4 w-full md:w-1/3">
                         <div id="samplesList" class="mt-4 space-y-2">
                             <!-- Amostras processadas aqui -->
@@ -276,28 +283,23 @@
                 <div class="card">
                     <h2 class="section-title"><i class="ph-bold ph-chart-bar"></i> Construtor de Gráfico Comparativo</h2>
                     <div class="flex flex-col gap-6 mb-6">
-                        <div class="flex flex-col md:flex-row gap-6">
-                            <div class="flex-1">
-                                <label for="yAxisSelect" class="font-semibold mb-2 block">1. Selecione a métrica (Eixo Y):</label>
-                                <select id="yAxisSelect" class="input-field"></select>
-                            </div>
-                            <div class="flex-1">
-                                <label class="font-semibold mb-2 block">2. Selecione o tipo de gráfico:</label>
-                                <div id="chartTypeSelect" class="flex space-x-2">
-                                    <button data-type="bar" class="chart-type-btn"><i class="ph-bold ph-chart-bar"></i> Barras</button>
-                                    <button data-type="line" class="chart-type-btn active"><i class="ph-bold ph-chart-line"></i> Linhas</button>
-                                </div>
+                        <div class="flex-1">
+                            <label class="font-semibold mb-2 block">1. Selecione o tipo de gráfico:</label>
+                            <div id="chartTypeSelect" class="flex space-x-2">
+                                <button data-type="bar" class="chart-type-btn"><i class="ph-bold ph-chart-bar"></i> Barras</button>
+                                <button data-type="line" class="chart-type-btn active"><i class="ph-bold ph-chart-line"></i> Linhas</button>
                             </div>
                         </div>
                         <div class="lg:col-span-2">
-                            <label class="font-semibold mb-2 block">3. Monte os conjuntos de amostras para comparação:</label>
-                            <div id="datasetSelectorsContainer" class="space-y-4 flex gap-2 flex-wrap items-stretch justify-start">
+                            <label class="font-semibold mb-2 block">2. Monte os conjuntos de amostras para comparação:</label>
+                            <div id="datasetSelectorsContainer" class="space-y-4 md:space-y-0 md:flex md:flex-wrap md:items-stretch md:gap-4">
                                 <!-- Seletores de dataset serão inseridos aqui -->
                             </div>
                             <button id="addDatasetBtn" class="btn btn-secondary mt-4 text-sm">
                                 <i class="ph-bold ph-plus"></i> Adicionar Conjunto de Amostras
                             </button>
                         </div>
+                        <!-- FIM DAS ALTERAÇÕES -->
                     </div>
                     <div class="bg-slate-50 p-2 sm:p-4 rounded-lg mt-4">
                         <canvas id="resultsChart"></canvas>
@@ -357,7 +359,7 @@
             molecules: [], 
             samples: [], 
             results: [],
-            chartSelectedSamples: {} 
+            chartConfig: {} 
         };
         let resultsChart = null;
         let datasetCount = 0;
@@ -412,11 +414,12 @@
                         appState.molecules = parsed.molecules || [];
                         appState.samples = parsed.samples || [];
                         appState.results = parsed.results || [];
-                        appState.chartSelectedSamples = parsed.chartSelectedSamples || {};
+                        appState.chartConfig = parsed.chartConfig || {};
                     }
                 } catch (e) {
                     console.error("Erro ao ler dados do localStorage.", e);
-                    appState.molecules = []; appState.samples = []; appState.results = []; appState.chartSelectedSamples = {};
+                    appState.molecules = []; appState.samples = []; appState.results = []; 
+                    appState.chartConfig = {};
                 }
             }
             renderAll();
@@ -429,7 +432,6 @@
             renderResultsTable();
             renderSummaryStats();
             initializeChartSelectors();
-            renderChart();
         }
 
         function renderMoleculesList() {
@@ -698,11 +700,10 @@
         
         function deleteResult(sampleName) {
             if (confirm(`Tem certeza que deseja excluir os resultados de "${sampleName}"?`)) {
-                // Remove from chart selections first
-                Object.keys(appState.chartSelectedSamples).forEach(key => {
-                    const index = appState.chartSelectedSamples[key].indexOf(sampleName);
+                Object.keys(appState.chartConfig).forEach(key => {
+                    const index = appState.chartConfig[key].selectedSamples.indexOf(sampleName);
                     if (index > -1) {
-                        appState.chartSelectedSamples[key].splice(index, 1);
+                        appState.chartConfig[key].selectedSamples.splice(index, 1);
                     }
                 });
 
@@ -722,58 +723,111 @@
             return { mean, stdDev };
         }
 
+        function copyProcessedSamplesAsCsv() {
+            if (appState.samples.length === 0) {
+                showAlert('Não há amostras processadas para copiar.', 'info');
+                return;
+            }
+
+            const headers = ["Amostra", "Replicata"];
+            appState.molecules.forEach(m => headers.push(m.name));
+            let csvContent = headers.join('\t') + "\n";
+
+            appState.samples.forEach(sample => {
+                const row = [
+                    sample.name.replace(/_\d+$/, ''), // Base name
+                    sample.sampleNumber
+                ];
+                appState.molecules.forEach(mol => {
+                    const concentration = sample.processedData[mol.name]?.concentration.toFixed(6).toString().replace('.', ',') || 0;
+                    row.push(concentration);
+                });
+                csvContent += row.join('\t') + "\n";
+            });
+            
+            navigator.clipboard.writeText(csvContent).then(() => {
+                showAlert('Dados das amostras copiados para a área de transferência!', 'success');
+            }, () => {
+                showAlert('Falha ao copiar os dados.', 'error');
+            });
+        }
+
         function copyResultsAsCsv() {
             if (appState.results.length === 0) { showAlert('Não há resultados para copiar.', 'info'); return; }
-            let csvContent = "Amostra,";
+            let csvContent = "Amostra\t";
             const headers = [];
             appState.molecules.forEach(m => { headers.push(`${m.name} (Média)`); headers.push(`${m.name} (Desvio Padrão)`); });
-            csvContent += headers.join(',') + "\n";
+            csvContent += headers.join('\t') + "\n";
             appState.results.forEach(res => {
                 const row = [res.sampleName];
                 appState.molecules.forEach(m => {
                     const data = res.molecules[m.name];
-                    row.push(data.mean.toFixed(6)); row.push(data.stdDev.toFixed(6));
+                    row.push(data.mean.toFixed(6).toString().replace('.', ',')); row.push(data.stdDev.toFixed(6).toString().replace('.', ','));
                 });
-                csvContent += row.join(',') + "\n";
+                csvContent += row.join('\t') + "\n";
             });
             navigator.clipboard.writeText(csvContent).then(() => showAlert('Resultados copiados para a área de transferência!', 'success'), () => showAlert('Falha ao copiar resultados.', 'error'));
         }
         
         function initializeChartSelectors() {
-            const yAxis = document.getElementById('yAxisSelect');
-            yAxis.innerHTML = '<option value="">Selecione uma métrica</option>';
-            if(appState.results.length === 0) {
-                document.getElementById('datasetSelectorsContainer').innerHTML = '<p class="text-slate-500 text-center text-sm">Processe algumas amostras para começar a montar o gráfico.</p>';
+            const container = document.getElementById('datasetSelectorsContainer');
+            container.innerHTML = '';
+            
+            if (appState.results.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-center text-sm w-full">Processe algumas amostras para começar a montar o gráfico.</p>';
                 return;
             };
-            appState.molecules.forEach(m => {
-                yAxis.innerHTML += `<option value="${m.name}-mean">${m.name} (Média)</option>`;
-                yAxis.innerHTML += `<option value="${m.name}-stdDev">${m.name} (Desvio Padrão)</option>`;
-            });
-            document.getElementById('datasetSelectorsContainer').innerHTML = '';
+
             datasetCount = 0;
-            appState.chartSelectedSamples = {}; // Reset selections when re-initializing
-            addDatasetSelector();
+            const existingKeys = Object.keys(appState.chartConfig);
+            if (existingKeys.length > 0) {
+                existingKeys.forEach(key => {
+                    const id = key.split('-').pop();
+                    datasetCount = Math.max(datasetCount, parseInt(id));
+                    addDatasetSelector(true, key);
+                });
+            } else {
+                appState.chartConfig = {};
+                addDatasetSelector();
+            }
+            renderChart();
         }
 
-        function addDatasetSelector() {
-            datasetCount++;
+        function addDatasetSelector(isInitialization = false, existingKey = null) {
+            if (!isInitialization) datasetCount++;
+            
             const container = document.getElementById('datasetSelectorsContainer');
-            const selectorId = `dataset-selector-${datasetCount}`;
+            const selectorId = existingKey || `dataset-selector-${datasetCount}`;
+            
+            if (!isInitialization || !appState.chartConfig[selectorId]) {
+                 appState.chartConfig[selectorId] = { metric: '', selectedSamples: [] };
+            }
+
             const wrapper = document.createElement('div');
             wrapper.className = 'border border-slate-200 p-3 rounded-lg bg-slate-50 flex-1 min-w-[280px]';
+            
+            let metricOptions = '<option value="">Selecione uma métrica</option>';
+            appState.molecules.forEach(m => {
+                metricOptions += `<option value="${m.name}-mean" ${appState.chartConfig[selectorId].metric === `${m.name}-mean` ? 'selected' : ''}>${m.name} (Média)</option>`;
+                metricOptions += `<option value="${m.name}-stdDev" ${appState.chartConfig[selectorId].metric === `${m.name}-stdDev` ? 'selected' : ''}>${m.name} (Desvio Padrão)</option>`;
+            });
+
             let content = `
                 <div class="flex justify-between items-center mb-2">
-                    <label class="font-semibold text-slate-700">Conjunto ${datasetCount}</label>
-                    ${datasetCount > 1 ? `<button class="text-red-500 hover:text-red-700 text-xs" onclick="removeDatasetSelector('${selectorId}', event)"><i class="ph-bold ph-trash"></i></button>` : ''}
+                    <label class="font-semibold text-slate-700">Conjunto ${selectorId.split('-').pop()}</label>
+                    ${Object.keys(appState.chartConfig).length > 1 ? `<button class="text-red-500 hover:text-red-700 text-xs" onclick="removeDatasetSelector('${selectorId}', event)"><i class="ph-bold ph-trash"></i></button>` : ''}
                 </div>
-                <input type="text" placeholder="Buscar amostra..." class="dataset-search-input w-full p-2 border border-slate-200 rounded-md mb-2 text-sm" data-target="${selectorId}">
-                <div id="${selectorId}" class="sample-checkbox-list bg-white">`;
+                <div class="space-y-2">
+                    <select class="chart-metric-select w-full p-2 border border-slate-200 rounded-md text-sm" data-parent-id="${selectorId}">${metricOptions}</select>
+                    <input type="text" placeholder="Buscar amostra..." class="dataset-search-input w-full p-2 border border-slate-200 rounded-md text-sm" data-target="${selectorId}">
+                </div>
+                <div id="${selectorId}" class="sample-checkbox-list bg-white mt-2">`;
 
             appState.results.forEach(r => {
+                const isChecked = appState.chartConfig[selectorId].selectedSamples.includes(r.sampleName) ? 'checked' : '';
                 content += `
                     <label class="flex items-center space-x-2 p-1 hover:bg-slate-100 rounded cursor-pointer">
-                        <input type="checkbox" value="${r.sampleName}" class="chart-sample-checkbox rounded" data-parent-id="${selectorId}">
+                        <input type="checkbox" value="${r.sampleName}" class="chart-sample-checkbox rounded" data-parent-id="${selectorId}" ${isChecked}>
                         <span>${r.sampleName}</span>
                     </label>`;
             });
@@ -782,10 +836,17 @@
             wrapper.id = `${selectorId}-wrapper`;
             container.appendChild(wrapper);
 
-            appState.chartSelectedSamples[selectorId] = [];
-
+            wrapper.querySelector('.chart-metric-select').addEventListener('change', handleChartMetricChange);
             wrapper.querySelectorAll('.chart-sample-checkbox').forEach(el => el.addEventListener('change', handleChartSelectionChange));
             wrapper.querySelector('.dataset-search-input').addEventListener('input', handleDatasetSearch);
+        }
+
+        function handleChartMetricChange(event) {
+            const select = event.target;
+            const metric = select.value;
+            const parentId = select.dataset.parentId;
+            appState.chartConfig[parentId].metric = metric;
+            renderChart();
         }
 
         function handleDatasetSearch(event) {
@@ -807,7 +868,11 @@
             const checkbox = event.target;
             const sampleName = checkbox.value;
             const parentId = checkbox.dataset.parentId;
-            const selectedSamples = appState.chartSelectedSamples[parentId];
+            
+            if (!appState.chartConfig[parentId]) {
+                appState.chartConfig[parentId] = { metric: '', selectedSamples: [] };
+            }
+            const selectedSamples = appState.chartConfig[parentId].selectedSamples;
 
             if (checkbox.checked) {
                 if (!selectedSamples.includes(sampleName)) {
@@ -824,66 +889,69 @@
         
         function removeDatasetSelector(selectorId, event) {
             event.stopPropagation();
-            delete appState.chartSelectedSamples[selectorId];
-            document.getElementById(`${selectorId}-wrapper`).remove();
+            delete appState.chartConfig[selectorId];
+            const wrapper = document.getElementById(`${selectorId}-wrapper`);
+            if (wrapper) wrapper.remove();
             renderChart();
         }
 
         function renderChart() {
-            const yAxisSelect = document.getElementById('yAxisSelect');
-            const selectedMetric = yAxisSelect.value;
             const chartType = document.querySelector('.chart-type-btn.active')?.dataset.type || 'bar';
             if (resultsChart) { resultsChart.destroy(); }
             
-            const selectorIds = Object.keys(appState.chartSelectedSamples);
-            const selectedSamplesByDataset = selectorIds.map(id => appState.chartSelectedSamples[id] || []);
+            const selectorIds = Object.keys(appState.chartConfig);
+            const datasetsConfig = selectorIds.map(id => appState.chartConfig[id]);
 
-            const hasActiveSelections = selectedSamplesByDataset.some(ds => ds.length > 0);
-            if (!selectedMetric || !hasActiveSelections) {
+            const hasActiveSelections = datasetsConfig.some(ds => ds.selectedSamples.length > 0 && ds.metric);
+            if (!hasActiveSelections) {
                  const ctx = document.getElementById('resultsChart').getContext('2d');
                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                  ctx.font = "16px Inter, sans-serif"; ctx.fillStyle = "#64748b"; ctx.textAlign = "center";
-                 //ctx.fillText("Selecione uma métrica e ao menos uma amostra para gerar o gráfico.", ctx.canvas.width / 2, 50);
+                 ctx.fillText("Selecione uma métrica e ao menos uma amostra para gerar o gráfico.", ctx.canvas.width / 2, 50);
                 return;
             }
-            const [moleculeName, metricType] = selectedMetric.split('-');
             const colors = [
                 { hex: '#4f46e5', bg: 'rgba(79, 70, 229, 0.6)', border: 'rgba(79, 70, 229, 1)' },
                 { hex: '#e11d48', bg: 'rgba(225, 29, 72, 0.6)', border: 'rgba(225, 29, 72, 1)' },
                 { hex: '#22c55e', bg: 'rgba(34, 197, 94, 0.6)', border: 'rgba(34, 197, 94, 1)' },
                 { hex: '#f97316', bg: 'rgba(249, 115, 22, 0.6)', border: 'rgba(249, 115, 22, 1)' },
                 { hex: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.6)', border: 'rgba(139, 92, 246, 1)' },
-                { hex: '#7c3aed', bg: 'rgba(124, 58, 237, 0.6)', border: 'rgba(124, 58, 237, 1)' },   // Violet
-                { hex: '#ec4899', bg: 'rgba(236, 72, 153, 0.6)', border: 'rgba(236, 72, 153, 1)' },  // Pink
-                { hex: '#3b82f6', bg: 'rgba(59, 130, 246, 0.6)', border: 'rgba(59, 130, 246, 1)' },   // Blue
-                { hex: '#10b981', bg: 'rgba(16, 185, 129, 0.6)', border: 'rgba(16, 185, 129, 1)' },   // Emerald
-                { hex: '#fbbf24', bg: 'rgba(251, 191, 36, 0.6)', border: 'rgba(251, 191, 36, 1)' },   // Amber
             ];
-            const maxLength = Math.max(0, ...selectedSamplesByDataset.map(ds => ds.length));
+            const maxLength = Math.max(0, ...datasetsConfig.map(ds => ds.selectedSamples.length));
             const chartLabels = [];
             for (let i = 0; i < maxLength; i++) {
-                chartLabels.push(selectedSamplesByDataset.map(ds => ds[i] || '—'));
+                chartLabels.push(datasetsConfig.map(ds => ds.selectedSamples[i] || '—'));
             }
-            const finalDatasets = selectedSamplesByDataset.map((samples, index) => {
+            const finalDatasets = datasetsConfig.map((config, index) => {
                 const data = [];
+                if (!config.metric) return null; // Skip dataset if no metric is selected
+
+                const [moleculeName, metricType] = config.metric.split('-');
+                
                 for (let i = 0; i < maxLength; i++) {
-                    const sampleName = samples[i];
+                    const sampleName = config.selectedSamples[i];
                     if (sampleName) {
                         const result = appState.results.find(r => r.sampleName === sampleName);
-                        data.push(result ? result.molecules[moleculeName][metricType] : null);
+                        data.push(result ? result.molecules[moleculeName]?.[metricType] : null);
                     } else {
                         data.push(null);
                     }
                 }
                 const color = colors[index % colors.length];
+                const metricLabel = config.metric.replace('-', ' ');
                 return {
-                    label: `Conjunto ${index + 1}`, data, backgroundColor: color.bg, borderColor: color.border,
-                    borderWidth: 2, pointBackgroundColor: color.border, pointRadius: 5,
+                    label: `Conjunto ${selectorIds[index].split('-').pop()}: ${metricLabel}`, 
+                    data, 
+                    backgroundColor: color.bg, 
+                    borderColor: color.border,
+                    borderWidth: 2, 
+                    pointBackgroundColor: color.border, 
+                    pointRadius: 5,
                     fill: chartType === 'line' ? { target: 'origin', above: color.bg.replace('0.6', '0.1') } : false,
                     tension: 0.1
                 };
-            });
-
+            }).filter(Boolean); // Remove null datasets
+            
             const ctx = document.getElementById('resultsChart').getContext('2d');
             resultsChart = new Chart(ctx, {
                 type: chartType, data: { labels: chartLabels, datasets: finalDatasets },
@@ -895,13 +963,12 @@
                             grid: { display: false },
                             ticks: {
                                 callback: function(value) { return this.getLabelForValue(value); },
-                                color: '#64748b'
-                                // (context) => {
-                                //     const labels = context.chart.data.labels[context.tick.value];
-                                //     if(!Array.isArray(labels)) return '#64748b';
-                                //     const firstValidLabelIndex = labels.findIndex(l => l !== '—');
-                                //     return firstValidLabelIndex !== -1 ? colors[firstValidLabelIndex % colors.length].hex : '#64748b';
-                                // }
+                                color: (context) => {
+                                    const labels = context.chart.data.labels[context.tick.value];
+                                    if(!Array.isArray(labels)) return '#64748b';
+                                    const firstValidLabelIndex = labels.findIndex(l => l !== '—');
+                                    return firstValidLabelIndex !== -1 ? colors[firstValidLabelIndex % colors.length].hex : '#64748b';
+                                }
                             }
                         }
                     },
@@ -931,22 +998,33 @@
 
             document.getElementById('addMolecule').addEventListener('click', addMolecule);
             document.getElementById('processSample').addEventListener('click', processSample);
+            document.getElementById('copyProcessedSamplesButton').addEventListener('click', copyProcessedSamplesAsCsv);
             document.getElementById('copyCsvButton').addEventListener('click', copyResultsAsCsv);
-            document.getElementById('addDatasetBtn').addEventListener('click', addDatasetSelector);
+            document.getElementById('addDatasetBtn').addEventListener('click', () => addDatasetSelector());
             document.getElementById('sampleData').addEventListener('input', parseRawDataAndUpdateCheckboxes);
+            
             document.getElementById('processedSamplesSearch').addEventListener('input', (e) => renderSamplesList(e.target.value));
             document.getElementById('resultsSearch').addEventListener('input', (e) => renderResultsTable(e.target.value));
 
             document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
-            document.getElementById('yAxisSelect').addEventListener('change', renderChart);
+            
             document.querySelectorAll('.chart-type-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
+                    // Primeiro, gerencia a classe 'active'
+                    document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Depois, aplica os estilos visuais corretos a todos os botões
                     document.querySelectorAll('.chart-type-btn').forEach(b => {
-                        b.classList.remove('active', 'bg-indigo-500');
-                        b.classList.add('bg-slate-300', 'text-slate-700', 'hover:bg-slate-400');
+                        // Remove todas as classes de cor para evitar conflitos
+                        b.classList.remove('bg-indigo-500', 'bg-slate-300', 'text-slate-700', 'hover:bg-slate-400');
+                        
+                        if (b.classList.contains('active')) {
+                            b.classList.add('bg-indigo-500');
+                        } else {
+                            b.classList.add('bg-slate-300', 'text-slate-700', 'hover:bg-slate-400');
+                        }
                     });
-                    btn.classList.add('active', 'bg-indigo-500');
-                    btn.classList.remove('bg-slate-300', 'text-slate-700', 'hover:bg-slate-400');
                     renderChart();
                 });
             });
